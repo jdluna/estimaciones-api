@@ -13,13 +13,13 @@ custom:
       name: psycopg2-layer
       description: psycopg2 layer for PostgreSQL connectivity
       compatibleRuntimes:
-        - python3.13
+        - python3.9
   dbPassword: ${env:DB_PASSWORD, 'TempPassword123!'}
   rdsEndpoint: !GetAtt EstimacionesDB.Endpoint.Address
 
 provider:
   name: aws
-  runtime: python3.13
+  runtime: python3.9
   memorySize: 1024
   timeout: 20
   iam:
@@ -122,12 +122,10 @@ resources:
       Type: AWS::Lambda::Function
       Properties:
         FunctionName: estimaciones-db-initializer
-        Runtime: python3.13
+        Runtime: python3.9
         Handler: index.lambda_handler
         Role: arn:aws:iam::339712924490:role/LabRole
         Timeout: 300
-        Layers:
-          - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py38:1
         Code:
           ZipFile: |
             import json
