@@ -11,7 +11,7 @@ provider:
   environment:
     DB_HOST: ${self:custom.rdsEndpoint}
     DB_NAME: estimaciones
-    DB_USER: admin
+    DB_USER: estimaciones_user
     DB_PASSWORD: ${self:custom.dbPassword}
 
 custom:
@@ -94,8 +94,8 @@ resources:
         DBName: estimaciones
         DBInstanceClass: db.t3.micro
         Engine: postgres
-        EngineVersion: '15.8'
-        MasterUsername: admin
+        EngineVersion: '13.22'
+        MasterUsername: estimaciones_user
         MasterUserPassword: ${self:custom.dbPassword}
         AllocatedStorage: 20
         StorageType: gp2
@@ -118,7 +118,7 @@ resources:
         DBHost: !GetAtt EstimacionesDB.Endpoint.Address
         DBPort: !GetAtt EstimacionesDB.Endpoint.Port
         DBName: estimaciones
-        DBUser: admin
+        DBUser: estimaciones_user
         DBPassword: ${self:custom.dbPassword}
 
     # Lambda function for database initialization
@@ -226,7 +226,7 @@ resources:
             DB_HOST: !GetAtt EstimacionesDB.Endpoint.Address
             DB_PORT: !GetAtt EstimacionesDB.Endpoint.Port
             DB_NAME: estimaciones
-            DB_USER: admin
+            DB_USER: estimaciones_user
             DB_PASSWORD: ${self:custom.dbPassword}
 
   Outputs:
