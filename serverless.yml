@@ -72,20 +72,6 @@ functions:
 
 resources:
   Resources:
-    # RDS Security Group
-    EstimacionesDBSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: Security group for Estimaciones RDS instance
-        SecurityGroupIngress:
-          - IpProtocol: tcp
-            FromPort: 5432
-            ToPort: 5432
-            CidrIp: 0.0.0.0/0
-        Tags:
-          - Key: Name
-            Value: estimaciones-db-sg
-
     # RDS Instance
     EstimacionesDB:
       Type: AWS::RDS::DBInstance
@@ -99,12 +85,10 @@ resources:
         MasterUserPassword: ${self:custom.dbPassword}
         AllocatedStorage: 20
         StorageType: gp2
-        VPCSecurityGroups:
-          - !Ref EstimacionesDBSecurityGroup
         BackupRetentionPeriod: 7
         MultiAZ: false
         PubliclyAccessible: true
-        StorageEncrypted: true
+        StorageEncrypted: false
         DeletionProtection: false
         Tags:
           - Key: Name
