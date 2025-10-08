@@ -25,6 +25,53 @@ provider:
   timeout: 20
   iam:
     role: arn:aws:iam::946503249480:role/LabRole
+    statements:
+      - Effect: Allow
+        Action:
+          - rds:DescribeDBInstances
+          - rds:DescribeDBClusters
+          - rds:DescribeDBSubnetGroups
+          - rds:DescribeDBSecurityGroups
+          - rds:DescribeDBParameterGroups
+          - rds:DescribeDBLogFiles
+          - rds:DownloadDBLogFilePortion
+          - rds:CreateDBInstance
+          - rds:ModifyDBInstance
+          - rds:DeleteDBInstance
+          - rds:CreateDBSnapshot
+          - rds:DescribeDBSnapshots
+          - rds:DeleteDBSnapshot
+          - rds:RestoreDBInstanceFromDBSnapshot
+          - rds:RestoreDBInstanceToPointInTime
+          - rds:CreateDBParameterGroup
+          - rds:ModifyDBParameterGroup
+          - rds:DeleteDBParameterGroup
+          - rds:CreateDBSecurityGroup
+          - rds:ModifyDBSecurityGroup
+          - rds:DeleteDBSecurityGroup
+          - rds:AuthorizeDBSecurityGroupIngress
+          - rds:RevokeDBSecurityGroupIngress
+          - rds:CreateDBSubnetGroup
+          - rds:ModifyDBSubnetGroup
+          - rds:DeleteDBSubnetGroup
+          - rds:AddTagsToResource
+          - rds:ListTagsForResource
+          - rds:RemoveTagsFromResource
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - ec2:CreateNetworkInterface
+          - ec2:DescribeNetworkInterfaces
+          - ec2:DeleteNetworkInterface
+          - ec2:AttachNetworkInterface
+          - ec2:DetachNetworkInterface
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+        Resource: "*"
   environment:
     DB_HOST: ${self:custom.rdsEndpoint}
     DB_NAME: estimaciones
@@ -129,6 +176,21 @@ resources:
         Timeout: 300
         Layers:
           - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py38:1
+        Policies:
+          - Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - rds:DescribeDBInstances
+                  - rds:DescribeDBClusters
+                  - rds:Connect
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
         Code:
           ZipFile: |
             import json
