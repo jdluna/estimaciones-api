@@ -7,6 +7,26 @@ def lambda_handler(event, context):
     # Entrada (json)
     estimacion_data = json.loads(event['body']) if isinstance(event['body'], str) else event['body']
     
+    # Validar lote_id requerido
+    if 'lote_id' not in estimacion_data:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'error': 'lote_id es requerido'
+            })
+        }
+    
+    lote_id = estimacion_data['lote_id']
+    
+    # Validar que lote_id sea un entero de 1 a 8 dígitos
+    if not isinstance(lote_id, int) or lote_id < 1 or lote_id > 99999999:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'error': 'lote_id debe ser un número entero de 1 a 8 dígitos (entre 1 y 99999999)'
+            })
+        }
+    
     # Proceso
     try:
         dynamodb = boto3.resource('dynamodb')
@@ -19,6 +39,7 @@ def lambda_handler(event, context):
         # Crear item para DynamoDB
         item = {
             'estimacion_id': estimacion_id,
+            'lote_id': lote_id,
             'num_viviendas': estimacion_data.get('num_viviendas', 0),
             'num_comercios': estimacion_data.get('num_comercios', 0),
             'num_industrias': estimacion_data.get('num_industrias', 0),
@@ -39,6 +60,7 @@ def lambda_handler(event, context):
             'body': json.dumps({
                 'message': 'Estimación creada exitosamente',
                 'estimacion_id': estimacion_id,
+                'lote_id': lote_id,
                 'fecha_creacion': timestamp,
                 'fecha_modificacion': timestamp
             })

@@ -66,7 +66,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"num_reg\": 2,\n  \"estimaciones\": [\n    {\n      \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"num_viviendas\": 3,\n      \"num_comercios\": 2,\n      \"num_industrias\": 0,\n      \"num_educacion\": 0,\n      \"num_salud\": 0,\n      \"num_religion\": 0,\n      \"num_estacionamientos\": 0,\n      \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n      \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n    }\n  ]\n}"
+							"body": "{\n  \"num_reg\": 3,\n  \"estimaciones\": [\n    {\n      \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"lote_id\": 5,\n      \"num_viviendas\": 1,\n      \"num_comercios\": 0,\n      \"num_industrias\": 0,\n      \"num_educacion\": 0,\n      \"num_salud\": 0,\n      \"num_religion\": 0,\n      \"num_estacionamientos\": 0,\n      \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n      \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n    },\n    {\n      \"estimacion_id\": \"456e7890-e89b-12d3-a456-426614174001\",\n      \"lote_id\": 12345,\n      \"num_viviendas\": 2,\n      \"num_comercios\": 1,\n      \"num_industrias\": 0,\n      \"num_educacion\": 0,\n      \"num_salud\": 0,\n      \"num_religion\": 0,\n      \"num_estacionamientos\": 1,\n      \"fecha_creacion\": \"2025-01-07T18:15:00Z\",\n      \"fecha_modificacion\": \"2025-01-07T18:15:00Z\"\n    },\n    {\n      \"estimacion_id\": \"789e0123-e89b-12d3-a456-426614174002\",\n      \"lote_id\": 12345678,\n      \"num_viviendas\": 3,\n      \"num_comercios\": 2,\n      \"num_industrias\": 0,\n      \"num_educacion\": 0,\n      \"num_salud\": 0,\n      \"num_religion\": 0,\n      \"num_estacionamientos\": 0,\n      \"fecha_creacion\": \"2025-01-07T18:30:00Z\",\n      \"fecha_modificacion\": \"2025-01-07T18:30:00Z\"\n    }\n  ]\n}"
 						}
 					]
 				},
@@ -149,7 +149,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"estimacion\": {\n    \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"num_viviendas\": 3,\n    \"num_comercios\": 2,\n    \"num_industrias\": 0,\n    \"num_educacion\": 0,\n    \"num_salud\": 0,\n    \"num_religion\": 0,\n    \"num_estacionamientos\": 0,\n    \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n    \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n  }\n}"
+							"body": "{\n  \"estimacion\": {\n    \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"lote_id\": 12345,\n    \"num_viviendas\": 3,\n    \"num_comercios\": 2,\n    \"num_industrias\": 0,\n    \"num_educacion\": 0,\n    \"num_salud\": 0,\n    \"num_religion\": 0,\n    \"num_estacionamientos\": 0,\n    \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n    \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n  }\n}"
 						},
 						{
 							"name": "Not Found Response",
@@ -214,7 +214,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"num_viviendas\": 3,\n  \"num_comercios\": 2,\n  \"num_industrias\": 0,\n  \"num_educacion\": 0,\n  \"num_salud\": 0,\n  \"num_religion\": 0,\n  \"num_estacionamientos\": 0\n}",
+							"raw": "{\n  \"lote_id\": {{lote_id}},\n  \"num_viviendas\": 3,\n  \"num_comercios\": 2,\n  \"num_industrias\": 0,\n  \"num_educacion\": 0,\n  \"num_salud\": 0,\n  \"num_religion\": 0,\n  \"num_estacionamientos\": 0\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -246,7 +246,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"num_viviendas\": 3,\n  \"num_comercios\": 2,\n  \"num_industrias\": 0,\n  \"num_educacion\": 0,\n  \"num_salud\": 0,\n  \"num_religion\": 0,\n  \"num_estacionamientos\": 0\n}",
+									"raw": "{\n  \"lote_id\": 5,\n  \"num_viviendas\": 3,\n  \"num_comercios\": 2,\n  \"num_industrias\": 0,\n  \"num_educacion\": 0,\n  \"num_salud\": 0,\n  \"num_religion\": 0,\n  \"num_estacionamientos\": 0\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -274,7 +274,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"Estimación creada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n  \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n}"
+							"body": "{\n  \"message\": \"Estimación creada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"lote_id\": 5,\n  \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n  \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n}"
 						}
 					]
 				},
@@ -297,7 +297,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id\": \"{{estimacion_id}}\",\n  \"datos\": {\n    \"num_viviendas\": 4,\n    \"num_comercios\": 1,\n    \"num_estacionamientos\": 2\n  }\n}",
+							"raw": "{\n  \"id\": \"{{estimacion_id}}\",\n  \"lote_id\": {{lote_id}},\n  \"datos\": {\n    \"num_viviendas\": 4,\n    \"num_comercios\": 1,\n    \"num_estacionamientos\": 2\n  }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -329,7 +329,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"datos\": {\n    \"num_viviendas\": 4,\n    \"num_comercios\": 1,\n    \"num_estacionamientos\": 2\n  }\n}",
+									"raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"lote_id\": 12345,\n  \"datos\": {\n    \"num_viviendas\": 4,\n    \"num_comercios\": 1,\n    \"num_estacionamientos\": 2\n  }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -357,7 +357,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"Estimación modificada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"fecha_modificacion\": \"2025-01-07T18:30:00Z\"\n}"
+							"body": "{\n  \"message\": \"Estimación modificada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"lote_id\": 12345,\n  \"fecha_modificacion\": \"2025-01-07T18:30:00Z\"\n}"
 						},
 						{
 							"name": "Not Found Response",
@@ -371,7 +371,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"id\": \"non-existent-id\",\n  \"datos\": {\n    \"num_viviendas\": 4\n  }\n}",
+									"raw": "{\n  \"id\": \"non-existent-id\",\n  \"lote_id\": 12345,\n  \"datos\": {\n    \"num_viviendas\": 4\n  }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -466,7 +466,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"Estimación eliminada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
+							"body": "{\n  \"message\": \"Estimación eliminada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"lote_id\": 5\n}"
 						},
 						{
 							"name": "Not Found Response",
@@ -569,6 +569,21 @@
 		{
 			"key": "estimacion_id",
 			"value": "123e4567-e89b-12d3-a456-426614174000",
+			"type": "string"
+		},
+		{
+			"key": "lote_id",
+			"value": "12345678",
+			"type": "string"
+		},
+		{
+			"key": "lote_id_short",
+			"value": "5",
+			"type": "string"
+		},
+		{
+			"key": "lote_id_medium",
+			"value": "12345",
 			"type": "string"
 		}
 	]

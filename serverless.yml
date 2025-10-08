@@ -56,6 +56,28 @@ provider:
                           type: integer
                         estimaciones:
                           type: array
+                          items:
+                            type: object
+                            properties:
+                              lote_id:
+                                type: integer
+                                description: ID del lote catastral (8 dígitos numéricos)
+                              estimacion_id:
+                                type: string
+                              num_viviendas:
+                                type: integer
+                              num_comercios:
+                                type: integer
+                              num_industrias:
+                                type: integer
+                              num_educacion:
+                                type: integer
+                              num_salud:
+                                type: integer
+                              num_religion:
+                                type: integer
+                              num_estacionamientos:
+                                type: integer
               '500':
                 description: Error interno del servidor
         /estimaciones/buscar:
@@ -76,6 +98,33 @@ provider:
             responses:
               '200':
                 description: Estimación encontrada exitosamente
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        estimacion:
+                          type: object
+                          properties:
+                            lote_id:
+                              type: integer
+                              description: ID del lote catastral (8 dígitos numéricos)
+                            estimacion_id:
+                              type: string
+                            num_viviendas:
+                              type: integer
+                            num_comercios:
+                              type: integer
+                            num_industrias:
+                              type: integer
+                            num_educacion:
+                              type: integer
+                            num_salud:
+                              type: integer
+                            num_religion:
+                              type: integer
+                            num_estacionamientos:
+                              type: integer
               '404':
                 description: Estimación no encontrada
               '500':
@@ -93,6 +142,11 @@ provider:
                   schema:
                     type: object
                     properties:
+                      lote_id:
+                        type: integer
+                        minimum: 1
+                        maximum: 99999999
+                        description: ID del lote catastral (1 a 8 dígitos numéricos)
                       num_viviendas:
                         type: integer
                       num_comercios:
@@ -110,6 +164,21 @@ provider:
             responses:
               '200':
                 description: Estimación creada exitosamente
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                        estimacion_id:
+                          type: string
+                        lote_id:
+                          type: integer
+                          description: ID del lote catastral (8 dígitos numéricos)
+                        fecha_creacion:
+                          type: string
+                          format: date-time
               '500':
                 description: Error interno del servidor
         /estimaciones/modificar:
@@ -127,11 +196,31 @@ provider:
                     properties:
                       id:
                         type: string
+                      lote_id:
+                        type: integer
+                        minimum: 1
+                        maximum: 99999999
+                        description: ID del lote catastral (1 a 8 dígitos numéricos)
                       datos:
                         type: object
             responses:
               '200':
                 description: Estimación modificada exitosamente
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                        estimacion_id:
+                          type: string
+                        lote_id:
+                          type: integer
+                          description: ID del lote catastral (8 dígitos numéricos)
+                        fecha_modificacion:
+                          type: string
+                          format: date-time
               '404':
                 description: Estimación no encontrada
               '500':
@@ -152,6 +241,18 @@ provider:
             responses:
               '200':
                 description: Estimación eliminada exitosamente
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                        estimacion_id:
+                          type: string
+                        lote_id:
+                          type: integer
+                          description: ID del lote catastral (8 dígitos numéricos)
               '404':
                 description: Estimación no encontrada
               '500':

@@ -19,12 +19,14 @@ def lambda_handler(event, context):
         )
         
         if 'Attributes' in response:
+            lote_id = response['Attributes'].get('lote_id')
             # Salida (json)
             return {
                 'statusCode': 200,
                 'body': json.dumps({
                     'message': 'Estimación eliminada exitosamente',
-                    'estimacion_id': estimacion_id
+                    'estimacion_id': estimacion_id,
+                    'lote_id': lote_id
                 })
             }
         else:

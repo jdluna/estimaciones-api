@@ -8,6 +8,26 @@ def lambda_handler(event, context):
     estimacion_id = estimacion_data['id']
     datos = estimacion_data['datos']
     
+    # Validar lote_id requerido
+    if 'lote_id' not in estimacion_data:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'error': 'lote_id es requerido'
+            })
+        }
+    
+    lote_id = estimacion_data['lote_id']
+    
+    # Validar que lote_id sea un entero de 1 a 8 dígitos
+    if not isinstance(lote_id, int) or lote_id < 1 or lote_id > 99999999:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'error': 'lote_id debe ser un número entero de 1 a 8 dígitos (entre 1 y 99999999)'
+            })
+        }
+    
     # Proceso
     try:
         dynamodb = boto3.resource('dynamodb')
@@ -17,6 +37,11 @@ def lambda_handler(event, context):
         update_expression = "SET "
         expression_attribute_values = {}
         expression_attribute_names = {}
+        
+        # Agregar lote_id a actualizar
+        update_expression += "#lote_id = :lote_id, "
+        expression_attribute_names['#lote_id'] = 'lote_id'
+        expression_attribute_values[':lote_id'] = lote_id
         
         # Agregar campos a actualizar
         if 'num_viviendas' in datos:
@@ -77,6 +102,7 @@ def lambda_handler(event, context):
                 'body': json.dumps({
                     'message': 'Estimación modificada exitosamente',
                     'estimacion_id': estimacion_id,
+                    'lote_id': lote_id,
                     'fecha_modificacion': response['Attributes'].get('fecha_modificacion')
                 })
             }

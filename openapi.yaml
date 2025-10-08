@@ -191,7 +191,15 @@ components:
 
     CrearEstimacionRequest:
       type: object
+      required:
+        - lote_id
       properties:
+        lote_id:
+          type: integer
+          minimum: 1
+          maximum: 99999999
+          description: ID del lote catastral (1 a 8 dígitos numéricos)
+          example: 12345678
         num_viviendas:
           type: integer
           minimum: 0
@@ -232,12 +240,19 @@ components:
       type: object
       required:
         - id
+        - lote_id
         - datos
       properties:
         id:
           type: string
           description: ID único de la estimación a modificar
           example: "123e4567-e89b-12d3-a456-426614174000"
+        lote_id:
+          type: integer
+          minimum: 1
+          maximum: 99999999
+          description: ID del lote catastral (1 a 8 dígitos numéricos)
+          example: 12345678
         datos:
           type: object
           properties:
@@ -307,6 +322,12 @@ components:
           type: string
           description: ID único de la estimación creada
           example: "123e4567-e89b-12d3-a456-426614174000"
+        lote_id:
+          type: integer
+          minimum: 1
+          maximum: 99999999
+          description: ID del lote catastral (1 a 8 dígitos numéricos)
+          example: 12345678
         fecha_creacion:
           type: string
           format: date-time
@@ -328,6 +349,12 @@ components:
           type: string
           description: ID único de la estimación modificada
           example: "123e4567-e89b-12d3-a456-426614174000"
+        lote_id:
+          type: integer
+          minimum: 1
+          maximum: 99999999
+          description: ID del lote catastral (1 a 8 dígitos numéricos)
+          example: 12345678
         fecha_modificacion:
           type: string
           format: date-time
@@ -344,6 +371,12 @@ components:
           type: string
           description: ID único de la estimación eliminada
           example: "123e4567-e89b-12d3-a456-426614174000"
+        lote_id:
+          type: integer
+          minimum: 1
+          maximum: 99999999
+          description: ID del lote catastral (1 a 8 dígitos numéricos)
+          example: 12345678
 
     # ========== DATA SCHEMAS ==========
     Estimacion:
@@ -353,6 +386,12 @@ components:
           type: string
           description: ID único de la estimación
           example: "123e4567-e89b-12d3-a456-426614174000"
+        lote_id:
+          type: integer
+          minimum: 1
+          maximum: 99999999
+          description: ID del lote catastral (1 a 8 dígitos numéricos)
+          example: 12345678
         num_viviendas:
           type: integer
           description: Número de viviendas
