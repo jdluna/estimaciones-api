@@ -1,6 +1,6 @@
 import json
-import psycopg2
-import os
+import boto3
+import uuid
 from datetime import datetime
 
 def lambda_handler(event, context):
@@ -9,44 +9,40 @@ def lambda_handler(event, context):
     
     # Proceso
     try:
-        conn = psycopg2.connect(
-            host=os.environ['DB_HOST'],
-            database=os.environ['DB_NAME'],
-            user=os.environ['DB_USER'],
-            password=os.environ['DB_PASSWORD']
-        )
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table('estimaciones')
         
-        with conn.cursor() as cursor:
-            # Insertar nueva estimación
-            cursor.execute("""
-                INSERT INTO estimacion (
-                    num_viviendas, num_comercios, num_industrias, 
-                    num_educacion, num_salud, num_religion, num_estacionamientos
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-                RETURNING id, fecha_creacion, fecha_modificacion
-            """, (
-                estimacion_data.get('num_viviendas', 0),
-                estimacion_data.get('num_comercios', 0),
-                estimacion_data.get('num_industrias', 0),
-                estimacion_data.get('num_educacion', 0),
-                estimacion_data.get('num_salud', 0),
-                estimacion_data.get('num_religion', 0),
-                estimacion_data.get('num_estacionamientos', 0)
-            ))
-            
-            result = cursor.fetchone()
-            conn.commit()
-            
-            # Salida (json)
-            return {
-                'statusCode': 200,
-                'body': json.dumps({
-                    'message': 'Estimación creada exitosamente',
-                    'id': result[0],
-                    'fecha_creacion': result[1].isoformat(),
-                    'fecha_modificacion': result[2].isoformat()
-                })
-            }
+        # Generar ID único
+        estimacion_id = str(uuid.uuid4())
+        timestamp = datetime.utcnow().isoformat()
+        
+        # Crear item para DynamoDB
+        item = {
+            'estimacion_id': estimacion_id,
+            'num_viviendas': estimacion_data.get('num_viviendas', 0),
+            'num_comercios': estimacion_data.get('num_comercios', 0),
+            'num_industrias': estimacion_data.get('num_industrias', 0),
+            'num_educacion': estimacion_data.get('num_educacion', 0),
+            'num_salud': estimacion_data.get('num_salud', 0),
+            'num_religion': estimacion_data.get('num_religion', 0),
+            'num_estacionamientos': estimacion_data.get('num_estacionamientos', 0),
+            'fecha_creacion': timestamp,
+            'fecha_modificacion': timestamp
+        }
+        
+        # Insertar en DynamoDB
+        table.put_item(Item=item)
+        
+        # Salida (json)
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': 'Estimación creada exitosamente',
+                'estimacion_id': estimacion_id,
+                'fecha_creacion': timestamp,
+                'fecha_modificacion': timestamp
+            })
+        }
             
     except Exception as e:
         return {
@@ -55,6 +51,3 @@ def lambda_handler(event, context):
                 'error': f'Error al crear estimación: {str(e)}'
             })
         }
-    finally:
-        if 'conn' in locals():
-            conn.close()
