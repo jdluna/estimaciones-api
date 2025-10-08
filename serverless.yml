@@ -94,7 +94,7 @@ resources:
         DBName: estimaciones
         DBInstanceClass: db.t3.micro
         Engine: postgres
-        EngineVersion: '14.9'
+        EngineVersion: '15.8'
         MasterUsername: admin
         MasterUserPassword: ${self:custom.dbPassword}
         AllocatedStorage: 20
