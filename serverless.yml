@@ -1,0 +1,266 @@
+org: geraldocolchado
+service: estimaciones-api
+
+provider:
+  name: aws
+  runtime: python3.13
+  memorySize: 1024
+  timeout: 20
+  iam:
+    role: arn:aws:iam::946503249480:role/LabRole
+  environment:
+    DB_HOST: ${self:custom.rdsEndpoint}
+    DB_NAME: estimaciones
+    DB_USER: admin
+    DB_PASSWORD: ${self:custom.dbPassword}
+
+custom:
+  dbPassword: ${env:DB_PASSWORD, 'TempPassword123!'}
+  rdsEndpoint: !GetAtt EstimacionesDB.Endpoint.Address
+
+functions:
+  listar:
+    handler: ListarEstimaciones.lambda_handler
+    events:
+      - http:
+          path: /estimaciones/listar
+          method: get
+          cors: true
+          integration: lambda
+    layers:
+      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+  buscar:
+    handler: BuscarEstimacion.lambda_handler
+    events:
+      - http:
+          path: /estimaciones/buscar
+          method: post
+          cors: true
+          integration: lambda
+    layers:
+      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+  crear:
+    handler: CrearEstimacion.lambda_handler
+    events:
+      - http:
+          path: /estimaciones/crear
+          method: post
+          cors: true
+          integration: lambda
+    layers:
+      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+  modificar:
+    handler: ModificarEstimacion.lambda_handler
+    events:
+      - http:
+          path: /estimaciones/modificar
+          method: put
+          cors: true
+          integration: lambda
+    layers:
+      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+  eliminar:
+    handler: EliminarEstimacion.lambda_handler
+    events:
+      - http:
+          path: /estimaciones/eliminar
+          method: delete
+          cors: true
+          integration: lambda
+    layers:
+      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+
+resources:
+  Resources:
+    # RDS Security Group
+    EstimacionesDBSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for Estimaciones RDS instance
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: Name
+            Value: estimaciones-db-sg
+
+    # RDS Instance
+    EstimacionesDB:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        DBInstanceIdentifier: estimaciones-db
+        DBName: estimaciones
+        DBInstanceClass: db.t3.micro
+        Engine: postgres
+        EngineVersion: '15.4'
+        MasterUsername: admin
+        MasterUserPassword: ${self:custom.dbPassword}
+        AllocatedStorage: 20
+        StorageType: gp2
+        VPCSecurityGroups:
+          - !Ref EstimacionesDBSecurityGroup
+        BackupRetentionPeriod: 7
+        MultiAZ: false
+        PubliclyAccessible: true
+        StorageEncrypted: true
+        DeletionProtection: false
+        Tags:
+          - Key: Name
+            Value: estimaciones-db
+
+    # Custom Resource to run database schema
+    DatabaseInitializer:
+      Type: AWS::CloudFormation::CustomResource
+      Properties:
+        ServiceToken: !GetAtt DatabaseInitializerFunction.Arn
+        DBHost: !GetAtt EstimacionesDB.Endpoint.Address
+        DBPort: !GetAtt EstimacionesDB.Endpoint.Port
+        DBName: estimaciones
+        DBUser: admin
+        DBPassword: ${self:custom.dbPassword}
+
+    # Lambda function for database initialization
+    DatabaseInitializerFunction:
+      Type: AWS::Lambda::Function
+      Properties:
+        FunctionName: estimaciones-db-initializer
+        Runtime: python3.13
+        Handler: index.lambda_handler
+        Role: !GetAtt DatabaseInitializerRole.Arn
+        Timeout: 300
+        Layers:
+          - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py38:1
+        Code:
+          ZipFile: |
+            import json
+            import boto3
+            import psycopg2
+            import os
+            import time
+            from urllib.parse import unquote
+
+            def lambda_handler(event, context):
+                print(f"Event: {json.dumps(event)}")
+                
+                db_host = event['ResourceProperties']['DBHost']
+                db_port = event['ResourceProperties']['DBPort']
+                db_name = event['ResourceProperties']['DBName']
+                db_user = event['ResourceProperties']['DBUser']
+                db_password = event['ResourceProperties']['DBPassword']
+                
+                schema_sql = get_schema_sql()
+                
+                try:
+                    conn = psycopg2.connect(
+                        host=db_host,
+                        port=db_port,
+                        database=db_name,
+                        user=db_user,
+                        password=db_password
+                    )
+                    
+                    with conn.cursor() as cursor:
+                        cursor.execute(schema_sql)
+                        conn.commit()
+                    
+                    print("Database schema executed successfully")
+                    send_response(event, context, "SUCCESS", {
+                        "Message": "Database schema initialized successfully"
+                    })
+                    
+                except Exception as e:
+                    print(f"Error initializing database: {str(e)}")
+                    send_response(event, context, "FAILED", {
+                        "Message": f"Database initialization failed: {str(e)}"
+                    })
+                
+                finally:
+                    if 'conn' in locals():
+                        conn.close()
+
+            def get_schema_sql():
+                return """
+                CREATE TABLE IF NOT EXISTS estimacion (
+                    id SERIAL PRIMARY KEY,
+                    num_viviendas INTEGER DEFAULT 0,
+                    num_comercios INTEGER DEFAULT 0,
+                    num_industrias INTEGER DEFAULT 0,
+                    num_educacion INTEGER DEFAULT 0,
+                    num_salud INTEGER DEFAULT 0,
+                    num_religion INTEGER DEFAULT 0,
+                    num_estacionamientos INTEGER DEFAULT 0,
+                    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_estimacion_fecha_creacion ON estimacion(fecha_creacion);
+                CREATE INDEX IF NOT EXISTS idx_estimacion_fecha_modificacion ON estimacion(fecha_modificacion);
+                """
+
+            def send_response(event, context, status, data):
+                response_url = event['ResponseURL']
+                response_body = {
+                    'Status': status,
+                    'Reason': f'See CloudWatch logs for details: {context.log_group_name}',
+                    'PhysicalResourceId': context.log_stream_name,
+                    'StackId': event['StackId'],
+                    'RequestId': event['RequestId'],
+                    'LogicalResourceId': event['LogicalResourceId'],
+                    'Data': data
+                }
+                json_response_body = json.dumps(response_body)
+                headers = {
+                    'content-type': '',
+                    'content-length': str(len(json_response_body))
+                }
+                try:
+                    import urllib3
+                    http = urllib3.PoolManager()
+                    response = http.request('PUT', response_url, body=json_response_body, headers=headers)
+                    print(f"Status code: {response.status}")
+                except Exception as e:
+                    print(f"Error sending response: {str(e)}")
+        Environment:
+          Variables:
+            DB_HOST: !GetAtt EstimacionesDB.Endpoint.Address
+            DB_PORT: !GetAtt EstimacionesDB.Endpoint.Port
+            DB_NAME: estimaciones
+            DB_USER: admin
+            DB_PASSWORD: ${self:custom.dbPassword}
+
+    # IAM Role for database initializer
+    DatabaseInitializerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        Policies:
+          - PolicyName: DatabaseInitializerPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - rds:DescribeDBInstances
+                  Resource: '*'
+
+  Outputs:
+    DatabaseEndpoint:
+      Description: RDS instance endpoint
+      Value: !GetAtt EstimacionesDB.Endpoint.Address
+      Export:
+        Name: ${self:service}-database-endpoint
+    
+    DatabasePort:
+      Description: RDS instance port
+      Value: !GetAtt EstimacionesDB.Endpoint.Port
+      Export:
+        Name: ${self:service}-database-port
