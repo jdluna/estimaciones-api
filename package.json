@@ -1,0 +1,11 @@
+{
+  "name": "estimaciones-api",
+  "version": "1.0.0",
+  "description": "Serverless API for estimaciones with PostgreSQL",
+  "scripts": {
+    "install-deps": "pip install psycopg2-binary -t ./python"
+  },
+  "devDependencies": {
+    "serverless-python-requirements": "^5.4.0"
+  }
+}

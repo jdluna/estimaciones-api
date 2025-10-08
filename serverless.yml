@@ -1,6 +1,20 @@
 org: jhosepluna
 service: estimaciones-api
 
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    layer:
+      name: psycopg2-layer
+      description: psycopg2 layer for PostgreSQL connectivity
+      compatibleRuntimes:
+        - python3.13
+  dbPassword: ${env:DB_PASSWORD, 'TempPassword123!'}
+  rdsEndpoint: !GetAtt EstimacionesDB.Endpoint.Address
+
 provider:
   name: aws
   runtime: python3.13
@@ -28,7 +42,7 @@ functions:
           cors: true
           integration: lambda
     layers:
-      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+      - { Ref: PythonRequirementsLambdaLayer }
   buscar:
     handler: BuscarEstimacion.lambda_handler
     events:
@@ -38,7 +52,7 @@ functions:
           cors: true
           integration: lambda
     layers:
-      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+      - { Ref: PythonRequirementsLambdaLayer }
   crear:
     handler: CrearEstimacion.lambda_handler
     events:
@@ -48,7 +62,7 @@ functions:
           cors: true
           integration: lambda
     layers:
-      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+      - { Ref: PythonRequirementsLambdaLayer }
   modificar:
     handler: ModificarEstimacion.lambda_handler
     events:
@@ -58,7 +72,7 @@ functions:
           cors: true
           integration: lambda
     layers:
-      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+      - { Ref: PythonRequirementsLambdaLayer }
   eliminar:
     handler: EliminarEstimacion.lambda_handler
     events:
@@ -68,7 +82,7 @@ functions:
           cors: true
           integration: lambda
     layers:
-      - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
+      - { Ref: PythonRequirementsLambdaLayer }
 
 resources:
   Resources:
