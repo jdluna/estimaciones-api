@@ -6,7 +6,9 @@ plugins:
 
 custom:
   pythonRequirements:
-    dockerizePip: true
+    dockerizePip: false
+    slim: true
+    strip: false
     layer:
       name: psycopg2-layer
       description: psycopg2 layer for PostgreSQL connectivity
