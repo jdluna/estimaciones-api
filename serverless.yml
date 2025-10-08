@@ -128,7 +128,7 @@ resources:
         FunctionName: estimaciones-db-initializer
         Runtime: python3.13
         Handler: index.lambda_handler
-        Role: !GetAtt DatabaseInitializerRole.Arn
+        Role: arn:aws:iam::339712924490:role/LabRole
         Timeout: 300
         Layers:
           - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py38:1
@@ -228,29 +228,6 @@ resources:
             DB_NAME: estimaciones
             DB_USER: admin
             DB_PASSWORD: ${self:custom.dbPassword}
-
-    # IAM Role for database initializer
-    DatabaseInitializerRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service: lambda.amazonaws.com
-              Action: sts:AssumeRole
-        ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        Policies:
-          - PolicyName: DatabaseInitializerPolicy
-            PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - rds:DescribeDBInstances
-                  Resource: '*'
 
   Outputs:
     DatabaseEndpoint:
