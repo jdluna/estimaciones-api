@@ -21,10 +21,12 @@ custom:
 provider:
   name: aws
   runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
   memorySize: 1024
   timeout: 20
+  # VPC configuration will be handled at function level
   iam:
-    role: arn:aws:iam::946503249480:role/LabRole
     statements:
       - Effect: Allow
         Action:
@@ -65,12 +67,47 @@ provider:
           - ec2:DeleteNetworkInterface
           - ec2:AttachNetworkInterface
           - ec2:DetachNetworkInterface
+          - ec2:DescribeVpcs
+          - ec2:DescribeSubnets
+          - ec2:DescribeSecurityGroups
         Resource: "*"
       - Effect: Allow
         Action:
           - logs:CreateLogGroup
           - logs:CreateLogStream
           - logs:PutLogEvents
+        Resource: "*"
+      - Effect: Allow
+        Action:
+          - cloudformation:*
+          - iam:CreateRole
+          - iam:DeleteRole
+          - iam:GetRole
+          - iam:PassRole
+          - iam:AttachRolePolicy
+          - iam:DetachRolePolicy
+          - iam:PutRolePolicy
+          - iam:DeleteRolePolicy
+          - iam:GetRolePolicy
+          - iam:ListRolePolicies
+          - iam:ListAttachedRolePolicies
+          - lambda:CreateFunction
+          - lambda:DeleteFunction
+          - lambda:GetFunction
+          - lambda:UpdateFunctionCode
+          - lambda:UpdateFunctionConfiguration
+          - lambda:ListFunctions
+          - lambda:AddPermission
+          - lambda:RemovePermission
+          - lambda:GetPolicy
+          - apigateway:*
+          - s3:CreateBucket
+          - s3:DeleteBucket
+          - s3:GetBucketLocation
+          - s3:ListBucket
+          - s3:GetObject
+          - s3:PutObject
+          - s3:DeleteObject
         Resource: "*"
   environment:
     DB_HOST: ${self:custom.rdsEndpoint}
@@ -87,6 +124,12 @@ functions:
           method: get
           cors: true
           integration: lambda
+    vpc:
+      securityGroupIds:
+        - !Ref LambdaSecurityGroup
+      subnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
     layers:
       - { Ref: PythonRequirementsLambdaLayer }
   buscar:
@@ -97,6 +140,12 @@ functions:
           method: post
           cors: true
           integration: lambda
+    vpc:
+      securityGroupIds:
+        - !Ref LambdaSecurityGroup
+      subnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
     layers:
       - { Ref: PythonRequirementsLambdaLayer }
   crear:
@@ -107,6 +156,12 @@ functions:
           method: post
           cors: true
           integration: lambda
+    vpc:
+      securityGroupIds:
+        - !Ref LambdaSecurityGroup
+      subnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
     layers:
       - { Ref: PythonRequirementsLambdaLayer }
   modificar:
@@ -117,6 +172,12 @@ functions:
           method: put
           cors: true
           integration: lambda
+    vpc:
+      securityGroupIds:
+        - !Ref LambdaSecurityGroup
+      subnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
     layers:
       - { Ref: PythonRequirementsLambdaLayer }
   eliminar:
@@ -127,16 +188,191 @@ functions:
           method: delete
           cors: true
           integration: lambda
+    vpc:
+      securityGroupIds:
+        - !Ref LambdaSecurityGroup
+      subnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
     layers:
       - { Ref: PythonRequirementsLambdaLayer }
 
 resources:
   Resources:
+    # VPC for the application
+    VPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsHostnames: true
+        EnableDnsSupport: true
+        Tags:
+          - Key: Name
+            Value: estimaciones-vpc-${self:provider.stage}
+
+    # Internet Gateway
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: Name
+            Value: estimaciones-igw-${self:provider.stage}
+
+    # Attach Internet Gateway to VPC
+    InternetGatewayAttachment:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        InternetGatewayId: !Ref InternetGateway
+        VpcId: !Ref VPC
+
+    # Public Subnet 1
+    PublicSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        AvailabilityZone: !Select [0, !GetAZs '']
+        CidrBlock: 10.0.1.0/24
+        MapPublicIpOnLaunch: true
+        Tags:
+          - Key: Name
+            Value: estimaciones-public-subnet-1-${self:provider.stage}
+
+    # Public Subnet 2
+    PublicSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        AvailabilityZone: !Select [1, !GetAZs '']
+        CidrBlock: 10.0.2.0/24
+        MapPublicIpOnLaunch: true
+        Tags:
+          - Key: Name
+            Value: estimaciones-public-subnet-2-${self:provider.stage}
+
+    # Private Subnet 1
+    PrivateSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        AvailabilityZone: !Select [0, !GetAZs '']
+        CidrBlock: 10.0.3.0/24
+        Tags:
+          - Key: Name
+            Value: estimaciones-private-subnet-1-${self:provider.stage}
+
+    # Private Subnet 2
+    PrivateSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        AvailabilityZone: !Select [1, !GetAZs '']
+        CidrBlock: 10.0.4.0/24
+        Tags:
+          - Key: Name
+            Value: estimaciones-private-subnet-2-${self:provider.stage}
+
+    # Route Table for Public Subnets
+    PublicRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: estimaciones-public-rt
+
+    # Route Table for Private Subnets
+    PrivateRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: estimaciones-private-rt
+
+    # Default route for public subnets
+    DefaultPublicRoute:
+      Type: AWS::EC2::Route
+      DependsOn: InternetGatewayAttachment
+      Properties:
+        RouteTableId: !Ref PublicRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+
+    # Associate public subnets with public route table
+    PublicSubnet1RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet1
+        RouteTableId: !Ref PublicRouteTable
+
+    PublicSubnet2RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet2
+        RouteTableId: !Ref PublicRouteTable
+
+    # Associate private subnets with private route table
+    PrivateSubnet1RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PrivateSubnet1
+        RouteTableId: !Ref PrivateRouteTable
+
+    PrivateSubnet2RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PrivateSubnet2
+        RouteTableId: !Ref PrivateRouteTable
+
+    # Security Group for RDS
+    RDSSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for RDS database
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            SourceSecurityGroupId: !Ref LambdaSecurityGroup
+        Tags:
+          - Key: Name
+            Value: estimaciones-rds-sg
+
+    # Security Group for Lambda functions
+    LambdaSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for Lambda functions
+        SecurityGroupEgress:
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            DestinationSecurityGroupId: !Ref RDSSecurityGroup
+          - IpProtocol: tcp
+            FromPort: 443
+            ToPort: 443
+            CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: Name
+            Value: estimaciones-lambda-sg
+
+    # DB Subnet Group
+    DBSubnetGroup:
+      Type: AWS::RDS::DBSubnetGroup
+      Properties:
+        DBSubnetGroupDescription: Subnet group for RDS database
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+        Tags:
+          - Key: Name
+            Value: estimaciones-db-subnet-group
+
     # RDS Instance
     EstimacionesDB:
       Type: AWS::RDS::DBInstance
       Properties:
-        DBInstanceIdentifier: estimaciones-db
+        DBInstanceIdentifier: estimaciones-db-${self:provider.stage}
         DBName: estimaciones
         DBInstanceClass: db.t3.micro
         Engine: postgres
@@ -147,12 +383,15 @@ resources:
         StorageType: gp2
         BackupRetentionPeriod: 7
         MultiAZ: false
-        PubliclyAccessible: true
+        PubliclyAccessible: false
         StorageEncrypted: false
         DeletionProtection: false
+        VPCSecurityGroups:
+          - !Ref RDSSecurityGroup
+        DBSubnetGroupName: !Ref DBSubnetGroup
         Tags:
           - Key: Name
-            Value: estimaciones-db
+            Value: estimaciones-db-${self:provider.stage}
 
     # Custom Resource to run database schema
     DatabaseInitializer:
@@ -165,32 +404,59 @@ resources:
         DBUser: estimaciones_user
         DBPassword: ${self:custom.dbPassword}
 
+    # IAM Role for Database Initializer Function
+    DatabaseInitializerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        Policies:
+          - PolicyName: RDSAccessPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - rds:DescribeDBInstances
+                    - rds:DescribeDBClusters
+                    - rds:Connect
+                  Resource: "*"
+                - Effect: Allow
+                  Action:
+                    - ec2:CreateNetworkInterface
+                    - ec2:DescribeNetworkInterfaces
+                    - ec2:DeleteNetworkInterface
+                    - ec2:AttachNetworkInterface
+                    - ec2:DetachNetworkInterface
+                    - ec2:DescribeVpcs
+                    - ec2:DescribeSubnets
+                    - ec2:DescribeSecurityGroups
+                  Resource: "*"
+
     # Lambda function for database initialization
     DatabaseInitializerFunction:
       Type: AWS::Lambda::Function
       Properties:
-        FunctionName: estimaciones-db-initializer
+        FunctionName: estimaciones-db-initializer-${self:provider.stage}
         Runtime: python3.13
         Handler: index.lambda_handler
-        Role: arn:aws:iam::946503249480:role/LabRole
+        Role: !GetAtt DatabaseInitializerRole.Arn
         Timeout: 300
+        VpcConfig:
+          SecurityGroupIds:
+            - !Ref LambdaSecurityGroup
+          SubnetIds:
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
         Layers:
-          - arn:aws:lambda:us-east-1:898466741470:layer:psycopg2-py38:1
-        Policies:
-          - Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - rds:DescribeDBInstances
-                  - rds:DescribeDBClusters
-                  - rds:Connect
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: "*"
+          - arn:aws:lambda:us-east-1:946503249480:layer:psycopg2-py38:1
         Code:
           ZipFile: |
             import json
