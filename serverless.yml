@@ -28,10 +28,6 @@ provider:
     DB_USER: estimaciones_user
     DB_PASSWORD: ${self:custom.dbPassword}
 
-custom:
-  dbPassword: ${env:DB_PASSWORD, 'TempPassword123!'}
-  rdsEndpoint: !GetAtt EstimacionesDB.Endpoint.Address
-
 functions:
   listar:
     handler: ListarEstimaciones.lambda_handler
