@@ -2,9 +2,8 @@ import json
 import boto3
 
 def lambda_handler(event, context):
-    # Entrada (json)
-    estimacion_data = json.loads(event['body']) if isinstance(event['body'], str) else event['body']
-    estimacion_id = estimacion_data['id']
+    # Entrada (path parameter)
+    estimacion_id = event['pathParameters']['id']
     
     # Proceso
     try:

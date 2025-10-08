@@ -1,0 +1,575 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789abc",
+		"name": "Estimaciones API",
+		"description": "Colección de Postman para la API de Estimaciones Catastrales. Incluye todos los endpoints para gestionar estimaciones catastrales incluyendo viviendas, comercios, industrias, centros educativos, de salud, religiosos y estacionamientos.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Estimaciones",
+			"item": [
+				{
+					"name": "Listar Estimaciones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/estimaciones/listar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"estimaciones",
+								"listar"
+							]
+						},
+						"description": "Obtiene una lista de todas las estimaciones catastrales registradas en el sistema."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/estimaciones/listar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"listar"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"num_reg\": 2,\n  \"estimaciones\": [\n    {\n      \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"num_viviendas\": 3,\n      \"num_comercios\": 2,\n      \"num_industrias\": 0,\n      \"num_educacion\": 0,\n      \"num_salud\": 0,\n      \"num_religion\": 0,\n      \"num_estacionamientos\": 0,\n      \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n      \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Buscar Estimación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{estimacion_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/estimaciones/buscar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"estimaciones",
+								"buscar"
+							]
+						},
+						"description": "Busca una estimación específica utilizando su ID único."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/estimaciones/buscar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"buscar"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"estimacion\": {\n    \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"num_viviendas\": 3,\n    \"num_comercios\": 2,\n    \"num_industrias\": 0,\n    \"num_educacion\": 0,\n    \"num_salud\": 0,\n    \"num_religion\": 0,\n    \"num_estacionamientos\": 0,\n    \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n    \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n  }\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"non-existent-id\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/estimaciones/buscar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"buscar"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Estimación no encontrada\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Crear Estimación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"num_viviendas\": 3,\n  \"num_comercios\": 2,\n  \"num_industrias\": 0,\n  \"num_educacion\": 0,\n  \"num_salud\": 0,\n  \"num_religion\": 0,\n  \"num_estacionamientos\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/estimaciones/crear",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"estimaciones",
+								"crear"
+							]
+						},
+						"description": "Registra una nueva estimación catastral con los datos proporcionados."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"num_viviendas\": 3,\n  \"num_comercios\": 2,\n  \"num_industrias\": 0,\n  \"num_educacion\": 0,\n  \"num_salud\": 0,\n  \"num_religion\": 0,\n  \"num_estacionamientos\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/estimaciones/crear",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"crear"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Estimación creada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"fecha_creacion\": \"2025-01-07T18:00:00Z\",\n  \"fecha_modificacion\": \"2025-01-07T18:00:00Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Modificar Estimación",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{estimacion_id}}\",\n  \"datos\": {\n    \"num_viviendas\": 4,\n    \"num_comercios\": 1,\n    \"num_estacionamientos\": 2\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/estimaciones/modificar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"estimaciones",
+								"modificar"
+							]
+						},
+						"description": "Actualiza los datos de una estimación existente. Solo se actualizan los campos proporcionados en el objeto 'datos'."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"datos\": {\n    \"num_viviendas\": 4,\n    \"num_comercios\": 1,\n    \"num_estacionamientos\": 2\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/estimaciones/modificar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"modificar"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Estimación modificada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"fecha_modificacion\": \"2025-01-07T18:30:00Z\"\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"non-existent-id\",\n  \"datos\": {\n    \"num_viviendas\": 4\n  }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/estimaciones/modificar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"modificar"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Estimación no encontrada\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Eliminar Estimación",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/estimaciones/eliminar/{{estimacion_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"estimaciones",
+								"eliminar",
+								"{{estimacion_id}}"
+							]
+						},
+						"description": "Elimina una estimación del sistema utilizando su ID único como path parameter."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/estimaciones/eliminar/123e4567-e89b-12d3-a456-426614174000",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"eliminar",
+										"123e4567-e89b-12d3-a456-426614174000"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"Estimación eliminada exitosamente\",\n  \"estimacion_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/estimaciones/eliminar/non-existent-id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"estimaciones",
+										"eliminar",
+										"non-existent-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"Estimación no encontrada\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Colección de endpoints para la gestión de estimaciones catastrales."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script de pre-request para la colección de Estimaciones API",
+					"// Aquí puedes agregar lógica común que se ejecute antes de cada request",
+					"",
+					"// Ejemplo: Generar timestamp para logging",
+					"pm.globals.set('timestamp', new Date().toISOString());",
+					"",
+					"// Ejemplo: Log del request que se va a ejecutar",
+					"console.log('Ejecutando request:', pm.info.requestName);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script de test para la colección de Estimaciones API",
+					"// Aquí puedes agregar tests comunes que se ejecuten después de cada request",
+					"",
+					"// Test básico: verificar que la respuesta no esté vacía",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"// Test básico: verificar que la respuesta tenga status code",
+					"pm.test('Response has status code', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 404, 500]);",
+					"});",
+					"",
+					"// Test básico: verificar que la respuesta sea JSON",
+					"pm.test('Response is JSON', function () {",
+					"    pm.response.to.be.json;",
+					"});",
+					"",
+					"// Log de la respuesta para debugging",
+					"console.log('Response status:', pm.response.status);",
+					"console.log('Response time:', pm.response.responseTime + 'ms');"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://your-api-id.execute-api.region.amazonaws.com/dev",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "estimacion_id",
+			"value": "123e4567-e89b-12d3-a456-426614174000",
+			"type": "string"
+		}
+	]
+}

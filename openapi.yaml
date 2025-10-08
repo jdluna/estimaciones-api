@@ -1,0 +1,412 @@
+openapi: 3.0.3
+info:
+  title: API de Estimaciones Catastrales
+  description: |
+    Sistema de APIs REST para la gestión de estimaciones catastrales.
+    
+    Esta API permite realizar operaciones CRUD sobre estimaciones de unidades catastrales,
+    incluyendo viviendas, comercios, industrias, centros educativos, de salud, religiosos
+    y estacionamientos.
+    
+    Todos los endpoints están desplegados en AWS Lambda y expuestos a través de API Gateway.
+  version: 1.0.0
+  contact:
+    name: Municipalidad - Área de Catastro
+    email: catastro@municipalidad.gob.pe
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://api.municipalidad.gob.pe/dev
+    description: Servidor de Desarrollo
+  - url: https://api.municipalidad.gob.pe/prod
+    description: Servidor de Producción
+
+tags:
+  - name: Estimaciones
+    description: Gestión de estimaciones catastrales
+
+paths:
+  /estimaciones/listar:
+    get:
+      tags:
+        - Estimaciones
+      summary: Listar todas las estimaciones
+      description: Obtiene una lista de todas las estimaciones catastrales registradas
+      operationId: listarEstimaciones
+      responses:
+        '200':
+          description: Lista de estimaciones obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimacionListResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /estimaciones/buscar:
+    post:
+      tags:
+        - Estimaciones
+      summary: Buscar una estimación por ID
+      description: Busca una estimación específica utilizando su ID único
+      operationId: buscarEstimacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuscarEstimacionRequest'
+      responses:
+        '200':
+          description: Estimación encontrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimacionResponse'
+        '404':
+          description: Estimación no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /estimaciones/crear:
+    post:
+      tags:
+        - Estimaciones
+      summary: Crear una nueva estimación
+      description: Registra una nueva estimación catastral con los datos proporcionados
+      operationId: crearEstimacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearEstimacionRequest'
+      responses:
+        '200':
+          description: Estimación creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrearEstimacionResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /estimaciones/modificar:
+    put:
+      tags:
+        - Estimaciones
+      summary: Modificar una estimación existente
+      description: Actualiza los datos de una estimación existente
+      operationId: modificarEstimacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModificarEstimacionRequest'
+      responses:
+        '200':
+          description: Estimación modificada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModificarEstimacionResponse'
+        '404':
+          description: Estimación no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /estimaciones/eliminar/{id}:
+    delete:
+      tags:
+        - Estimaciones
+      summary: Eliminar una estimación
+      description: Elimina una estimación del sistema utilizando su ID único
+      operationId: eliminarEstimacion
+      parameters:
+        - name: id
+          in: path
+          description: ID único de la estimación a eliminar
+          required: true
+          schema:
+            type: string
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Estimación eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EliminarEstimacionResponse'
+        '404':
+          description: Estimación no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    # ========== REQUEST SCHEMAS ==========
+    BuscarEstimacionRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: ID único de la estimación
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    CrearEstimacionRequest:
+      type: object
+      properties:
+        num_viviendas:
+          type: integer
+          minimum: 0
+          description: Número de viviendas
+          example: 3
+        num_comercios:
+          type: integer
+          minimum: 0
+          description: Número de comercios
+          example: 2
+        num_industrias:
+          type: integer
+          minimum: 0
+          description: Número de industrias
+          example: 0
+        num_educacion:
+          type: integer
+          minimum: 0
+          description: Número de centros educativos
+          example: 0
+        num_salud:
+          type: integer
+          minimum: 0
+          description: Número de centros de salud
+          example: 0
+        num_religion:
+          type: integer
+          minimum: 0
+          description: Número de edificaciones religiosas
+          example: 0
+        num_estacionamientos:
+          type: integer
+          minimum: 0
+          description: Número de estacionamientos
+          example: 0
+
+    ModificarEstimacionRequest:
+      type: object
+      required:
+        - id
+        - datos
+      properties:
+        id:
+          type: string
+          description: ID único de la estimación a modificar
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        datos:
+          type: object
+          properties:
+            num_viviendas:
+              type: integer
+              minimum: 0
+              description: Número de viviendas
+              example: 4
+            num_comercios:
+              type: integer
+              minimum: 0
+              description: Número de comercios
+              example: 1
+            num_industrias:
+              type: integer
+              minimum: 0
+              description: Número de industrias
+              example: 0
+            num_educacion:
+              type: integer
+              minimum: 0
+              description: Número de centros educativos
+              example: 0
+            num_salud:
+              type: integer
+              minimum: 0
+              description: Número de centros de salud
+              example: 0
+            num_religion:
+              type: integer
+              minimum: 0
+              description: Número de edificaciones religiosas
+              example: 0
+            num_estacionamientos:
+              type: integer
+              minimum: 0
+              description: Número de estacionamientos
+              example: 2
+
+
+    # ========== RESPONSE SCHEMAS ==========
+    EstimacionListResponse:
+      type: object
+      properties:
+        num_reg:
+          type: integer
+          description: Número de registros encontrados
+          example: 5
+        estimaciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Estimacion'
+
+    EstimacionResponse:
+      type: object
+      properties:
+        estimacion:
+          $ref: '#/components/schemas/Estimacion'
+
+    CrearEstimacionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Estimación creada exitosamente"
+        estimacion_id:
+          type: string
+          description: ID único de la estimación creada
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        fecha_creacion:
+          type: string
+          format: date-time
+          description: Fecha de creación en formato ISO
+          example: "2025-01-07T18:00:00Z"
+        fecha_modificacion:
+          type: string
+          format: date-time
+          description: Fecha de modificación en formato ISO
+          example: "2025-01-07T18:00:00Z"
+
+    ModificarEstimacionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Estimación modificada exitosamente"
+        estimacion_id:
+          type: string
+          description: ID único de la estimación modificada
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        fecha_modificacion:
+          type: string
+          format: date-time
+          description: Fecha de modificación en formato ISO
+          example: "2025-01-07T18:30:00Z"
+
+    EliminarEstimacionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Estimación eliminada exitosamente"
+        estimacion_id:
+          type: string
+          description: ID único de la estimación eliminada
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    # ========== DATA SCHEMAS ==========
+    Estimacion:
+      type: object
+      properties:
+        estimacion_id:
+          type: string
+          description: ID único de la estimación
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        num_viviendas:
+          type: integer
+          description: Número de viviendas
+          example: 3
+        num_comercios:
+          type: integer
+          description: Número de comercios
+          example: 2
+        num_industrias:
+          type: integer
+          description: Número de industrias
+          example: 0
+        num_educacion:
+          type: integer
+          description: Número de centros educativos
+          example: 0
+        num_salud:
+          type: integer
+          description: Número de centros de salud
+          example: 0
+        num_religion:
+          type: integer
+          description: Número de edificaciones religiosas
+          example: 0
+        num_estacionamientos:
+          type: integer
+          description: Número de estacionamientos
+          example: 0
+        fecha_creacion:
+          type: string
+          format: date-time
+          description: Fecha de creación en formato ISO
+          example: "2025-01-07T18:00:00Z"
+        fecha_modificacion:
+          type: string
+          format: date-time
+          description: Fecha de modificación en formato ISO
+          example: "2025-01-07T18:00:00Z"
+
+    # ========== ERROR SCHEMAS ==========
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+          example: "Error al listar estimaciones: Connection timeout"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT para autenticación
+
+security:
+  - BearerAuth: []

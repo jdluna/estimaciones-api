@@ -8,6 +8,154 @@ provider:
   timeout: 20
   iam:
     role: arn:aws:iam::946503249480:role/LabRole
+  apiGateway:
+    restApiId: ${opt:restApiId, ''}
+    restApiRootResourceId: ${opt:restApiRootResourceId, ''}
+    restApiResources:
+      /estimaciones:
+        /listar:
+          GET:
+            integration: lambda
+        /buscar:
+          POST:
+            integration: lambda
+        /crear:
+          POST:
+            integration: lambda
+        /modificar:
+          PUT:
+            integration: lambda
+        /eliminar/{id}:
+          DELETE:
+            integration: lambda
+    openApiVersion: 3.0.3
+    openApiDocumentation:
+      info:
+        title: API de Estimaciones Catastrales
+        version: 1.0.0
+        description: Sistema de APIs REST para la gestión de estimaciones catastrales
+      tags:
+        - name: Estimaciones
+          description: Gestión de estimaciones catastrales
+      paths:
+        /estimaciones/listar:
+          get:
+            tags:
+              - Estimaciones
+            summary: Listar todas las estimaciones
+            description: Obtiene una lista de todas las estimaciones catastrales registradas
+            responses:
+              '200':
+                description: Lista de estimaciones obtenida exitosamente
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        num_reg:
+                          type: integer
+                        estimaciones:
+                          type: array
+              '500':
+                description: Error interno del servidor
+        /estimaciones/buscar:
+          post:
+            tags:
+              - Estimaciones
+            summary: Buscar una estimación por ID
+            description: Busca una estimación específica utilizando su ID único
+            requestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+            responses:
+              '200':
+                description: Estimación encontrada exitosamente
+              '404':
+                description: Estimación no encontrada
+              '500':
+                description: Error interno del servidor
+        /estimaciones/crear:
+          post:
+            tags:
+              - Estimaciones
+            summary: Crear una nueva estimación
+            description: Registra una nueva estimación catastral con los datos proporcionados
+            requestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      num_viviendas:
+                        type: integer
+                      num_comercios:
+                        type: integer
+                      num_industrias:
+                        type: integer
+                      num_educacion:
+                        type: integer
+                      num_salud:
+                        type: integer
+                      num_religion:
+                        type: integer
+                      num_estacionamientos:
+                        type: integer
+            responses:
+              '200':
+                description: Estimación creada exitosamente
+              '500':
+                description: Error interno del servidor
+        /estimaciones/modificar:
+          put:
+            tags:
+              - Estimaciones
+            summary: Modificar una estimación existente
+            description: Actualiza los datos de una estimación existente
+            requestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      datos:
+                        type: object
+            responses:
+              '200':
+                description: Estimación modificada exitosamente
+              '404':
+                description: Estimación no encontrada
+              '500':
+                description: Error interno del servidor
+        /estimaciones/eliminar/{id}:
+          delete:
+            tags:
+              - Estimaciones
+            summary: Eliminar una estimación
+            description: Elimina una estimación del sistema utilizando su ID único
+            parameters:
+              - name: id
+                in: path
+                description: ID único de la estimación a eliminar
+                required: true
+                schema:
+                  type: string
+            responses:
+              '200':
+                description: Estimación eliminada exitosamente
+              '404':
+                description: Estimación no encontrada
+              '500':
+                description: Error interno del servidor
 
 functions:
   listar:
@@ -46,7 +194,7 @@ functions:
     handler: EliminarEstimacion.lambda_handler
     events:
       - http:
-          path: /estimaciones/eliminar
+          path: /estimaciones/eliminar/{id}
           method: delete
           cors: true
           integration: lambda
